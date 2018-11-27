@@ -1,7 +1,8 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
+ using System.Linq;
+ using System.Numerics;
 
 using Windows.Foundation;
 
@@ -112,8 +113,15 @@ namespace Win2dUwpApp.Models
 
 				var q = (int) (x / _hexWidth) - 1;
 				var r = (int) (y / _hexHeigth) - 1;
-				
-				Hexes[q + r * _cols].IsSelected = true;
+
+			    //Hexes[q + r * _cols].IsSelected = true;
+
+                var hex = Hexes.FirstOrDefault(h => h.Contains(new Vector2((float) x, (float) y))); // cn be wonky because of floting point precisions -> take whatever
+
+			    if (hex != null)
+			    {
+			        hex.IsSelected = true;
+                }
 			}
 		}
 	}
