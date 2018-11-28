@@ -8,18 +8,8 @@ namespace Win2dUwpApp.Models
 {
     public class Hex
     {
-        private readonly int _size;
-
-        private const int _topCorner = 1;
-        private const int _toprightCorner = 2;
-        private const int _bottomRightCorner = 3;
-        private const int _bottomCorner = 4;
-        private const int _bottomrightCorner = 5;
-        private const int _topLeftCorner = 6;
-
         public Hex(Vector2 center, int size)
         {
-            _size = size;
             Center = center;
             Corners = new Vector2[6];
 
@@ -48,9 +38,9 @@ namespace Win2dUwpApp.Models
         public bool Contains(Vector2 coordinates)
         {
             // the easy ones
-            if (coordinates.X < Corners[_toprightCorner].X || coordinates.X > Corners[_topLeftCorner].X)
+            if (coordinates.X > Corners.Max(c => c.X) || coordinates.X < Corners.Min(c => c.X))
                 return false;
-            if (coordinates.Y > Corners[_bottomCorner].Y || coordinates.Y < Corners[_topCorner].Y)
+            if (coordinates.Y < Corners.Min(c => c.Y) || coordinates.Y > Corners.Max(c => c.Y))
                 return false;
 
 
@@ -60,26 +50,28 @@ namespace Win2dUwpApp.Models
 
         private IEnumerable<Triangle> GetIncludedTriangles()
         {
-            for (var i = 0; i < Corners.Length - 1; i++) // don't include the last corner
+            for (var i = 0; i < Corners.Length; i++) // don't include the last corner
             {
-                yield return new Triangle(Center, Corners[i], Corners[i+1]);
+                var j = i + 1;
+                if (j == Corners.Length)
+                    j = 0;
+
+                yield return new Triangle(Center, Corners[i], Corners[j]);
             }
         }
 
         private bool IsPointInTriagle(Vector2 point, Vector2 v1, Vector2 v2, Vector2 v3)
         {
-            var totalArea = CalculateTriangleArea(v1, v2, v3);
-            var area1 = CalculateTriangleArea(point, v2, v3);
-            var area2 = CalculateTriangleArea(point, v1, v3);
-            var area3 = CalculateTriangleArea(point, v1, v2);
+            double s1 = v3.Y - v1.Y;
+            double s2 = v3.X - v1.X;
+            double s3 = v2.Y - v1.Y;
+            double s4 = point.Y - v1.Y;
 
-            return !((area1 + area2 + area3) > totalArea);
-        }
+            var w1 = (v1.X * s1 + s4 * s2 - point.X * s1) / (s3 * s2 - (v2.X - v1.X) * s1);
+            var w2 = (s4 - w1 * s3) / s1;
 
-        private float CalculateTriangleArea(Vector2 v1, Vector2 v2, Vector2 v3)
-        {
-            var det = ((v1.X - v3.X) * (v2.Y - v3.Y)) - ((v2.X - v3.X) * (v1.Y - v3.Y));
-            return (det / 2.0f);
+            var result = w1 >= 0 && w2 >= 0 && (w1 + w2) <= 1;
+            return result;
         }
 
         private class Triangle
