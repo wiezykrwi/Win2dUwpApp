@@ -98,6 +98,7 @@
     <Compile Include="Managers\GameManager.cs" />
     <Compile Include="Models\Board.cs" />
     <Compile Include="Models\Camera.cs" />
+    <Compile Include="Models\Coordinate.cs" />
     <Compile Include="Models\GameObject.cs" />
     <Compile Include="Models\Hex.cs" />
     <Compile Include="Managers\InputManager.cs" />

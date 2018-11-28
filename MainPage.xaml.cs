@@ -74,6 +74,9 @@ namespace Win2dUwpApp
 			{
 				rect.Union((hex.Corners[i] - camera.Offset).ToPoint());
 			}
+
+			rect.Y = Math.Floor(rect.Y) - 2.0d;
+			rect.Height = Math.Ceiling(rect.Height) + 4.0d;
 			drawingSession.DrawImage(_tileImage, rect);
 
 			drawingSession.DrawCircle(centerPoint, 3, hex.IsSelected ? Colors.Blue : Colors.Gold);

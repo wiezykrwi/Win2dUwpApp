@@ -39,9 +39,10 @@ namespace Win2dUwpApp.Models
 
 				for (int j = 0; j < cols; j++)
 				{
-					Hexes[j + i * cols] = new Hex(new Vector2(widthMultiplier * _hexWidth, heigthMultiplier * _hexHeigth), HexSize)
+					var center = new Vector2(widthMultiplier * _hexWidth, heigthMultiplier * _hexHeigth);
+					Hexes[j + i * cols] = new Hex(center, HexSize)
 					{
-						Tag = $"{j}, {i}"
+						Tag = GetCoordinate(center).ToString()
 					};
 
 					widthMultiplier += 1.0f;
@@ -50,6 +51,40 @@ namespace Win2dUwpApp.Models
 				evenRow = !evenRow;
 				heigthMultiplier += 0.75f;
 			}
+		}
+
+		private Coordinate GetCoordinate(Vector2 point)
+		{
+			var q = (float) (Math.Sqrt(3f) / 3f * point.X - 1f / 3f * point.Y) / HexSize;
+			var r = (2f / 3f * point.Y) / HexSize;
+
+			return HexRound(q, r, -q -r);
+		}
+
+		private Coordinate HexRound(float x, float y, float z)
+		{
+			var rx = (int) Math.Round(x);
+			var ry = (int) Math.Round(y);
+			var rz = (int) Math.Round(z);
+
+			var xDiff = Math.Abs(rx - x);
+			var yDiff = Math.Abs(ry - y);
+			var zDiff = Math.Abs(rz - z);
+
+			if (xDiff > yDiff && xDiff > zDiff)
+			{
+				rx = -ry - rz;
+			}
+			else if (yDiff > zDiff)
+			{
+				ry = -rx - rz;
+			}
+			else
+			{
+				rz = -rx - ry;
+			}
+
+			return new Coordinate(rx, ry);
 		}
 
 		public Hex[] Hexes { get; }
@@ -82,39 +117,9 @@ namespace Win2dUwpApp.Models
 
 			return visibleHexes.ToArray();
 		}
-
-		private Point _clickPoint;
-		private bool _dragging;
-
+		
 		public override void Update(GameManager gameManager, int deltaTime)
 		{
-			if (gameManager.Input.IsLeftButtonPressed)
-			{
-				if (_dragging)
-				{
-					return;
-				}
-
-				_clickPoint = gameManager.Input.PointerPosition;
-				_dragging = true;
-			}
-			else if (_dragging)
-			{
-				_dragging = false;
-				var delta = _clickPoint.X - gameManager.Input.PointerPosition.X + _clickPoint.Y - gameManager.Input.PointerPosition.Y;
-				if (delta > 4.0d)
-				{
-					return;
-				}
-
-				var x = _clickPoint.X + gameManager.Camera.Offset.X;
-				var y = _clickPoint.Y + gameManager.Camera.Offset.Y;
-
-				var q = (int) (x / _hexWidth) - 1;
-				var r = (int) (y / _hexHeigth) - 1;
-				
-				Hexes[q + r * _cols].IsSelected = true;
-			}
 		}
 	}
 }
