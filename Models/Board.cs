@@ -122,7 +122,8 @@ namespace Win2dUwpApp.Models
 		
 		public override void Update(GameManager gameManager, int deltaTime)
 		{
-			Coordinate = GetCoordinate(gameManager.Input.PointerPosition.ToVector2());
+			var realPoint = gameManager.Input.PointerPosition.ToVector2() + gameManager.Camera.Offset;
+			Coordinate = GetCoordinate(realPoint);
 		}
 	}
 }
