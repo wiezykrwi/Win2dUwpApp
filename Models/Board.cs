@@ -30,8 +30,8 @@ namespace Win2dUwpApp.Models
 			Width = (int) (_hexWidth * _cols + _hexWidth * 2);
 			Heigth = (int) (_hexHeigth * _rows + _hexHeigth * 2);
 	        
-			bool evenRow = false;
-			float heigthMultiplier = 0.75f;
+			bool evenRow = true;
+			float heigthMultiplier = 0.5f;
 			
 			for (int i = 0; i < rows; i++)
 			{
@@ -92,6 +92,8 @@ namespace Win2dUwpApp.Models
 		public int Width { get; }
 		public int Heigth { get; }
 
+		public Coordinate Coordinate { get; set; }
+
 		public Hex[] GetVisibleHexes(Camera camera)
 		{
 			var visibleHexes = new List<Hex>();
@@ -120,6 +122,7 @@ namespace Win2dUwpApp.Models
 		
 		public override void Update(GameManager gameManager, int deltaTime)
 		{
+			Coordinate = GetCoordinate(gameManager.Input.PointerPosition.ToVector2());
 		}
 	}
 }

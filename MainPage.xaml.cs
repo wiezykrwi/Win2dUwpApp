@@ -54,6 +54,7 @@ namespace Win2dUwpApp
 			}
 
 			drawingSession.DrawText($"FPS: {fps}", 10, 10, Colors.Black);
+			drawingSession.DrawText($"{_gameManager.Board.Coordinate}", 10, 30, Colors.Black);
 
 			_signal.Set();
 		}
