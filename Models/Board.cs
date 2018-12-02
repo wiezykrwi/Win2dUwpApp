@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
-
-using Windows.Foundation;
 
 using Win2dUwpApp.Managers;
 
@@ -26,7 +23,8 @@ namespace Win2dUwpApp.Models
 			_hexWidth = (float) (Math.Sqrt(3) * HexSize);
 			_hexHeigth = 2 * HexSize;
 
-			Hexes = new Hex[rows * cols];
+			Hexes = new Dictionary<Coordinate, Hex>();
+			HexArray = new Hex[rows * cols];
 			Width = (int) (_hexWidth * _cols + _hexWidth * 2);
 			Heigth = (int) (_hexHeigth * _rows + _hexHeigth * 2);
 	        
@@ -40,10 +38,14 @@ namespace Win2dUwpApp.Models
 				for (int j = 0; j < cols; j++)
 				{
 					var center = new Vector2(widthMultiplier * _hexWidth, heigthMultiplier * _hexHeigth);
-					Hexes[j + i * cols] = new Hex(center, HexSize)
+					var coordinate = GetCoordinate(center);
+					var hex = new Hex(center, HexSize)
 					{
-						Tag = GetCoordinate(center).ToString()
+						Tag = coordinate.ToString()
 					};
+
+					Hexes.Add(coordinate, hex);
+					HexArray[j + i * cols] = hex;
 
 					widthMultiplier += 1.0f;
 				}
@@ -55,10 +57,12 @@ namespace Win2dUwpApp.Models
 
 		private Coordinate GetCoordinate(Vector2 point)
 		{
-			var q = (float) (Math.Sqrt(3f) / 3f * point.X - 1f / 3f * point.Y) / HexSize;
-			var r = (2f / 3f * point.Y) / HexSize;
+			var pointY = point.Y + HexSize / 2;
+			var q = (float) (Math.Sqrt(3f) / 3f * point.X - 1f / 3f * pointY) / HexSize;
+			var r = (2f / 3f * pointY) / HexSize;
 
 			return HexRound(q, r, -q -r);
+			//return HexRound(q, -q -r, r);
 		}
 
 		private Coordinate HexRound(float x, float y, float z)
@@ -87,7 +91,8 @@ namespace Win2dUwpApp.Models
 			return new Coordinate(rx, ry);
 		}
 
-		public Hex[] Hexes { get; }
+		public Dictionary<Coordinate, Hex> Hexes { get; }
+		public Hex[] HexArray { get; }
 
 		public int Width { get; }
 		public int Heigth { get; }
@@ -99,12 +104,12 @@ namespace Win2dUwpApp.Models
 			var visibleHexes = new List<Hex>();
 			var minimumWidth = _hexWidth / 2.0f - 1.0f;
 			var minimumHeigth = _hexHeigth / 2.0f - 1.0f;
-
+			
 			for (int i = 0; i < _rows; i++)
 			{
 				for (int j = 0; j < _cols; j++)
 				{
-					var hex = Hexes[j + i * _cols];
+					var hex = HexArray[j + i * _cols];
 					if (hex.Center.X < camera.Offset.X - minimumWidth ||
 					    hex.Center.X > camera.Offset.X + camera.Size.Width + minimumWidth ||
 					    hex.Center.Y < camera.Offset.Y - minimumHeigth ||

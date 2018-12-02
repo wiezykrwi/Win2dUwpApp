@@ -8,6 +8,7 @@ using Windows.Foundation;
 using Windows.UI;
 
 using Microsoft.Graphics.Canvas;
+using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
@@ -30,6 +31,7 @@ namespace Win2dUwpApp
 		private int fps;
 		private int time;
 		private int previousTime;
+
 		private GameManager _gameManager;
 		private CanvasBitmap _tileImage;
 
@@ -53,8 +55,21 @@ namespace Win2dUwpApp
 				time = 0;
 			}
 
+			drawingSession.FillRectangle(0, 0, 150, 90, Colors.White);
 			drawingSession.DrawText($"FPS: {fps}", 10, 10, Colors.Black);
-			drawingSession.DrawText($"{_gameManager.Board.Coordinate}", 10, 30, Colors.Black);
+			drawingSession.DrawText($"Hex: {_gameManager.Board.Coordinate}", 10, 30, Colors.Black);
+			drawingSession.DrawText($"Pnt: {(int)_gameManager.Input.PointerPosition.X}, {(int)_gameManager.Input.PointerPosition.Y}", 10, 50, Colors.Black);
+
+			if (_gameManager.Board.Hexes.ContainsKey(_gameManager.Board.Coordinate))
+			{
+				var currentHex = _gameManager.Board.Hexes[_gameManager.Board.Coordinate];
+				var currentHexCorners = (Vector2[]) currentHex.Corners.Clone();
+				for (int i = 0; i < 6; i++)
+				{
+					currentHexCorners[i] -= _gameManager.Camera.Offset;
+				}
+				drawingSession.FillGeometry(CanvasGeometry.CreatePolygon(drawingSession, currentHexCorners), Color.FromArgb(100, 255, 0, 100));
+			}			
 
 			_signal.Set();
 		}
