@@ -21,6 +21,9 @@ namespace Win2dUwpApp.Models
 
 		public string Tag { get; set; }
 		public bool IsSelected { get; set; }
+		public bool Passable { get; set; }
+
+		public Pawn Pawn { get; set; }
 
 		private Vector2 GetCorner(Vector2 center, int size, int i)
 		{

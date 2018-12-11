@@ -30,6 +30,7 @@ namespace Win2dUwpApp.Models
 	        
 			bool evenRow = true;
 			float heigthMultiplier = 0.5f;
+			var random = new Random();
 			
 			for (int i = 0; i < rows; i++)
 			{
@@ -41,7 +42,8 @@ namespace Win2dUwpApp.Models
 					var coordinate = GetCoordinate(center);
 					var hex = new Hex(center, HexSize)
 					{
-						Tag = coordinate.ToString()
+						Tag = coordinate.ToString(),
+						Passable = random.NextDouble() < 0.7
 					};
 
 					Hexes.Add(coordinate, hex);
@@ -53,6 +55,10 @@ namespace Win2dUwpApp.Models
 				evenRow = !evenRow;
 				heigthMultiplier += 0.75f;
 			}
+
+			var startingHex = Hexes[new Coordinate(3, 3)];
+			startingHex.Pawn = new Pawn();
+			startingHex.Passable = true;
 		}
 
 		private Coordinate GetCoordinate(Vector2 point)
@@ -62,7 +68,6 @@ namespace Win2dUwpApp.Models
 			var r = (2f / 3f * pointY) / HexSize;
 
 			return HexRound(q, r, -q -r);
-			//return HexRound(q, -q -r, r);
 		}
 
 		private Coordinate HexRound(float x, float y, float z)
@@ -82,10 +87,6 @@ namespace Win2dUwpApp.Models
 			else if (yDiff > zDiff)
 			{
 				ry = -rx - rz;
-			}
-			else
-			{
-				rz = -rx - ry;
 			}
 
 			return new Coordinate(rx, ry);
@@ -129,6 +130,18 @@ namespace Win2dUwpApp.Models
 		{
 			var realPoint = gameManager.Input.PointerPosition.ToVector2() + gameManager.Camera.Offset;
 			Coordinate = GetCoordinate(realPoint);
+
+			if (gameManager.Input.IsLeftButtonPressed)
+			{
+				if (Hexes.ContainsKey(Coordinate))
+				{
+					var pawn = Hexes[Coordinate].Pawn;
+					if (pawn != null)
+					{
+						pawn.Selected = true;
+					}
+				}
+			}
 		}
 	}
 }
