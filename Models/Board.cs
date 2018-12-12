@@ -64,7 +64,8 @@ namespace Win2dUwpApp.Models
 			var startingHex = Hexes[new Coordinate(3, 3)];
 			startingHex.Pawn = new Pawn
 			{
-				MoveSpeed = 5
+				MoveSpeed = 5,
+				Hex = startingHex
 			};
 			startingHex.Passable = true;
 		}
@@ -104,6 +105,8 @@ namespace Win2dUwpApp.Models
 
 			return visibleHexes.ToArray();
 		}
+
+		private Pawn _selectedPawn;
 		
 		public override void Update(GameManager gameManager, int deltaTime)
 		{
@@ -120,11 +123,18 @@ namespace Win2dUwpApp.Models
 				var pawn = Hexes[Coordinate].Pawn;
 				if (pawn == null)
 				{
-					// deselect
+					if (_selectedPawn != null)
+					{
+						_selectedPawn.Selected = false;
+						_selectedPawn = null;
+						PossibleMoves.Clear();
+					}
+
 					return;
 				}
 
 				pawn.Selected = true;
+				_selectedPawn = pawn;
 
 				var moveQueue = new Queue<Move>();
 
@@ -179,6 +189,18 @@ namespace Win2dUwpApp.Models
 				}
 
 				PossibleMoves = possibleMoves;
+			}
+
+			if (gameManager.Input.IsRightButtonPressed && _selectedPawn != null)
+			{
+				if (PossibleMoves.Contains(Coordinate))
+				{
+					_selectedPawn.Hex.Pawn = null;
+					_selectedPawn.Hex = Hexes[Coordinate];
+					_selectedPawn.Hex.Pawn = _selectedPawn;
+					_selectedPawn.Selected = false;
+					PossibleMoves.Clear();
+				}
 			}
 		}
 		

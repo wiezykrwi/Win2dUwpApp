@@ -6,6 +6,7 @@ namespace Win2dUwpApp.Models
 	{
 		public bool Selected { get; set; }
 		public int MoveSpeed { get; set; }
+		public Hex Hex { get; set; }
 
 		public override void Update(GameManager gameManager, int deltaTime)
 		{
