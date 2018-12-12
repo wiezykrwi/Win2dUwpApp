@@ -19,9 +19,11 @@ namespace Win2dUwpApp.Models
 		public Vector2 Center { get; }
 		public Vector2[] Corners { get; }
 
-		public string Tag { get; set; }
+		public Coordinate Coordinate { get; set; }
+
 		public bool IsSelected { get; set; }
 		public bool Passable { get; set; }
+		public int MoveCost { get; set; }
 
 		public Pawn Pawn { get; set; }
 
